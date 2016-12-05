@@ -28,25 +28,29 @@ public class NewsInterface {
 	String param;
 	String httpUrl;
 	private final String KeyId = "bc22ec037f0ddacb73c341fcb187a432";
-	String httpArg = "num=10&page=1&key=" + KeyId;
+
 
 	@RequestMapping(value = "/getNews", produces = "text/html;charset=UTF-8")
 	@ResponseBody
 	public void getGlobalNews(HttpServletRequest request,
-			HttpServletResponse response, String type, int pageIndex)
+							  HttpServletResponse response, String type, int pageIndex)
 			throws ServletException, IOException {
-		if (type.equals("全球")) {
-			httpUrl = "http://apis.baidu.com/txapi/world/world";
-		} else if (type.equals("体育")) {
-			httpUrl = "http://api.tianapi.com/tiyu/";
-		} else {
-			httpUrl = "http://api.tianapi.com/keji/";
+		switch (type) {
+			case "全球":
+				httpUrl = "http://apis.baidu.com/txapi/world/world";
+				break;
+			case "体育":
+				httpUrl = "http://api.tianapi.com/tiyu/";
+				break;
+			default:
+				httpUrl = "http://api.tianapi.com/keji/";
+				break;
 		}
+		String httpArg = "num=10&page=" + pageIndex + "&key=" + KeyId;
 		String jsonResult = HttpRequest.request(httpUrl, httpArg);
 		jsonResult = jsonResult.replaceAll("\\\\", "");
 		int length = jsonResult.length();
 		jsonResult = jsonResult.substring(39, length - 3);
-
 		List<News> list = new ArrayList<News>();
 		list = JSON.parseArray(jsonResult, News.class);
 		BaseResponse<List<News>> baseResponse = new BaseResponse<List<News>>();
@@ -57,29 +61,4 @@ public class NewsInterface {
 		out.flush();
 		out.close();
 	}
-
-	@RequestMapping("/getPElNews")
-	@ResponseBody
-	public BaseResponse<String> getPElNews(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		httpUrl = "http://api.tianapi.com/tiyu/";
-		String jsonResult = HttpRequest.request(httpUrl, httpArg);
-		BaseResponse<String> baseResponse = new BaseResponse<String>();
-		baseResponse.setCode(0);
-		baseResponse.setData(jsonResult);
-		return baseResponse;
-	}
-
-	@RequestMapping("/getTeNews")
-	@ResponseBody
-	public BaseResponse<String> getTeNews(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		httpUrl = "http://api.tianapi.com/keji/";
-		String jsonResult = HttpRequest.request(httpUrl, httpArg);
-		BaseResponse<String> baseResponse = new BaseResponse<String>();
-		baseResponse.setCode(0);
-		baseResponse.setData(jsonResult);
-		return baseResponse;
-	}
-
 }
